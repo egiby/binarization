@@ -5,6 +5,7 @@ there is implementation of [Bradley algorithm](http://citeseerx.ist.psu.edu/view
 ## Building
 1. Requirements:
 
+   * g++ >= 4.8.1
    * cmake
    * imagemagick
    * openmp
