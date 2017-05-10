@@ -1,0 +1,8 @@
+.idea/
+cmake-build-debug/
+data/
+*.jpg
+*.png
+*.bmp
+results/
+cmake-build-release/

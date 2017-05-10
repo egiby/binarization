@@ -7,16 +7,22 @@
 
 class ImageLink {
     Magick::Image image;
-    Magick::PixelPacket* raw_data;
+    Magick::PixelPacket *raw_data;
+    std::string format;
 
     void init() {
         image.type(Magick::GrayscaleType);
-        raw_data = image.getPixels(0, 0, width(), height());
+        raw_data = image.getPixels(0, 0, static_cast<size_t>(width()), static_cast<size_t>(height()));
     }
 
 public:
+    explicit ImageLink(const std::string &filename, const std::string &format)
+            : image(filename), format(format) {
+        init();
+    }
+
     explicit ImageLink(const std::string &filename)
-    : image(filename) {
+            : image(filename), format("PNG") {
         init();
     }
 
@@ -46,7 +52,12 @@ public:
     }
 
     void write(const std::string &filename) {
+        image.magick(format);
         image.write(filename);
+    }
+
+    void display() {
+        image.display();
     }
 };
 
