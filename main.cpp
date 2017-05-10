@@ -20,13 +20,21 @@ int binarize(const std::string &infile, const std::string &outfile, const std::s
 }
 
 void help() {
-    std::cout << "help message, to do..." << std::endl;
+    std::cout << "Usage: \n"
+            "binarization -i=<input file> [-o[=<output file>]] "
+            "[-v] [-f=<output image format>] [-h] [-v] or \n"
+            "binarization <input file>" << std::endl;
+
+    std::cout << "\nDefaults:\n"
+            "-f=PNG\n"
+            "-o=\"result.png\"\n"
+            "" << std::endl;
 }
 
 int main(int argc, char * argv[]) {
     Magick::InitializeMagick(*argv);
 
-    const char options[] = "i:o:f:hv";
+    const char options[] = "i:o:f:j:hv";
     int opt(-1);
 
     std::string infile, outfile, format;
@@ -55,16 +63,17 @@ int main(int argc, char * argv[]) {
                 break;
             }
             default: {
-                std::cerr << "Wrong option: " << char(opt) << std::endl;
                 help();
                 return 0;
             }
         }
     }
 
-    if (has_help || infile.empty()) {
+    if (has_help || (infile.empty() && argc != 2)) {
         help();
         return 0;
+    } else if (infile.empty() && argc == 2) {
+        infile = argv[1];
     }
 
     if (outfile.empty()) {
