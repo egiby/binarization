@@ -3,7 +3,7 @@
 mkdir -p tmp
 cd tmp
 rm -rf *
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 
 make
 cp binarization ..
