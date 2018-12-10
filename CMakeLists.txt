@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.7)
 project(binarization)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-O2 -Wall")
+set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCE_FILES
         main.cpp
         image/Image.h
-        algorithms/IAlgorithm.h
-        algorithms/BradleyBinarisationAlgorithm.h)
+        algorithms/BradleyAlgorithm.h algorithms/BradleyAlgorithm.cpp)
+
+include_directories(.)
+
 add_executable(binarization ${SOURCE_FILES})
 
-find_package(ImageMagick COMPONENTS Magick++)
-include_directories(${ImageMagick_INCLUDE_DIRS})
-target_link_libraries(binarization ${ImageMagick_LIBRARIES})
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+target_link_libraries(binarization ${OpenCV_LIBS})
 
 find_package(OpenMP)
 if (OPENMP_FOUND)

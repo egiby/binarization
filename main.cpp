@@ -1,94 +1,102 @@
+#include <image/Image.h>
+#include <algorithms/BradleyAlgorithm.h>
+
 #include <iostream>
-#include <Magick++.h>
 
 #include <unistd.h>
 
-#include "image/Image.h"
-#include "algorithms/BradleyBinarisationAlgorithm.h"
-
 using std::cout;
 
-int binarize(const std::string &infile, const std::string &outfile, const std::string &format) {
-    auto image = ImageLink(infile, format);
-
-    BradleyBinarisationAlgorithm algo = BradleyBinarisationAlgorithm();
-
-    algo.run(image);
-
-    image.write(outfile);
-    return image.width() * image.height();
+void Binarize(Image* image, int invWindowSize, double threshold) {
+    BradleyAlgorithm algorithm;
+    algorithm.Run(*image, invWindowSize, threshold);
 }
 
-void help() {
+struct Params {
+    std::string InputFile;
+    std::string OutputFile;
+
+    int InvWindowSize = 16;
+    double Threshold = 0.15;
+
+    bool Verbose = false;
+    bool HasHelp = false;
+};
+
+void PrintHelp() {
     std::cout << "Usage: \n"
-            "binarization -i=<input file> [-o[=<output file>]] "
-            "[-v] [-f=<output image format>] [-h] [-v] or \n"
-            "binarization <input file>" << std::endl;
+                 "binarization -i=<input file> [-o[=<output file>]] "
+                 "[-v] [-h] or \n"
+                 "binarization <input file>" << std::endl;
 
     std::cout << "\nDefaults:\n"
-            "-f=PNG\n"
-            "-o=\"result.png\"\n"
-            "" << std::endl;
+                 "-o=\"result.tiff\"\n"
+                 "" << std::endl;
+
+    std::exit(0);
 }
 
-int main(int argc, char * argv[]) {
-    Magick::InitializeMagick(*argv);
+Params ParseCommandLine(int argc, char* argv[]) {
+    Params params;
+    params.OutputFile = "result.tiff";
 
-    const char options[] = "i:o:f:j:hv";
+
+    const char options[] = "i:o:d:t:hv";
     int opt(-1);
-
-    std::string infile, outfile, format;
-    bool has_help(false), verbose(false);
-
     while ((opt = getopt(argc, argv, options)) != -1) {
         switch (opt) {
             case 'i': {
-                infile = optarg;
+                params.InputFile = optarg;
                 break;
             }
             case 'o': {
-                outfile = optarg;
+                params.OutputFile = optarg;
+                break;
+            }
+            case 'd': {
+                params.InvWindowSize = atoi(optarg);
+                break;
+            }
+            case 't': {
+                params.Threshold = atof(optarg);
                 break;
             }
             case 'h': {
-                has_help = true;
-                break;
-            }
-            case 'f': {
-                format = optarg;
+                params.HasHelp = true;
                 break;
             }
             case 'v': {
-                verbose = true;
+                params.Verbose = true;
                 break;
             }
             default: {
-                help();
-                return 0;
+                PrintHelp();
             }
         }
     }
 
-    if (has_help || (infile.empty() && argc != 2)) {
-        help();
-        return 0;
-    } else if (infile.empty() && argc == 2) {
-        infile = argv[1];
+    if (params.HasHelp || (params.InputFile.empty() && argc != 2)) {
+        PrintHelp();
+    } else if (params.InputFile.empty() && argc == 2) {
+        params.InputFile = argv[1];
     }
 
-    if (outfile.empty()) {
-        outfile = "result.png";
-    }
+    return params;
+}
 
-    if (format.empty()) {
-        format = "PNG";
-    }
+int main(int argc, char* argv[]) {
+    Params params = ParseCommandLine(argc, argv);
 
+    Image image(params.InputFile);
     auto start = std::chrono::system_clock::now();
-    auto size = binarize(infile, outfile, format);
+    Binarize(&image, params.InvWindowSize, params.Threshold);
     auto end = std::chrono::system_clock::now();
 
-    if (verbose) {
+    image.Write(params.OutputFile);
+
+    if (params.Verbose) {
+        int size = image.Height() * image.Width();
+
         auto duration = std::chrono::duration<double>(end - start).count();
         cout << duration << "s" << std::endl;
         cout << "Speed: " << size / duration / 1e6 << " MPix/s" << std::endl;
