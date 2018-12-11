@@ -5,12 +5,11 @@ there is implementation of [Bradley algorithm](http://citeseerx.ist.psu.edu/view
 ## Building
 1. Requirements:
 
-   * g++ >= 4.8.1
+   * C++11
    * cmake
-   * imagemagick
-   * openmp
+   * opencv
+   * [libvips](https://github.com/libvips/libvips)
 2. Building:
 
    * clone this repository
-   * give rights for execution to build.sh
-   * execute build.sh
+   * run `build.sh`
