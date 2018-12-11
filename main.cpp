@@ -5,6 +5,8 @@
 
 #include <unistd.h>
 
+#include <vips/vips8>
+
 using std::cout;
 
 void Binarize(Image* image, int invWindowSize, double threshold) {
@@ -16,11 +18,12 @@ struct Params {
     std::string InputFile;
     std::string OutputFile;
 
-    int InvWindowSize = 16;
-    double Threshold = 0.15;
+    int InvWindowSize = 16; // 150
+    double Threshold = 0.15; // 0.12
 
     bool Verbose = false;
     bool HasHelp = false;
+    bool OneBitImage = false;
 };
 
 void PrintHelp() {
@@ -41,7 +44,7 @@ Params ParseCommandLine(int argc, char* argv[]) {
     params.OutputFile = "result.tiff";
 
 
-    const char options[] = "i:o:d:t:hv";
+    const char options[] = "i:o:d:t:hvc";
     int opt(-1);
     while ((opt = getopt(argc, argv, options)) != -1) {
         switch (opt) {
@@ -69,6 +72,10 @@ Params ParseCommandLine(int argc, char* argv[]) {
                 params.Verbose = true;
                 break;
             }
+            case 'c': {
+                params.OneBitImage = true;
+                break;
+            }
             default: {
                 PrintHelp();
             }
@@ -85,6 +92,9 @@ Params ParseCommandLine(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+    if (VIPS_INIT(argv[0]))
+        vips_error_exit(nullptr);
+
     Params params = ParseCommandLine(argc, argv);
 
     Image image(params.InputFile);
@@ -92,7 +102,11 @@ int main(int argc, char* argv[]) {
     Binarize(&image, params.InvWindowSize, params.Threshold);
     auto end = std::chrono::system_clock::now();
 
-    image.Write(params.OutputFile);
+    if (params.OneBitImage) {
+        image.WriteOneBitImage(params.OutputFile);
+    } else {
+        image.Write(params.OutputFile);
+    }
 
     if (params.Verbose) {
         int size = image.Height() * image.Width();

@@ -1,8 +1,12 @@
 #pragma once
 
-#include <opencv2/imgcodecs.hpp>
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <filesystem>
+
+#include <opencv2/imgcodecs.hpp>
+#include <vips/vips8>
 
 class Image {
 public:
@@ -28,6 +32,20 @@ public:
 
     void Write(const std::string& filename) {
         cv::imwrite(filename, image);
+    }
+
+    void WriteOneBitImage(const std::string& filename) {
+        char tmpName[L_tmpnam];
+        tmpnam(tmpName);
+        std::string tmp = std::string(tmpName) + ".tiff";
+        Write(tmp);
+
+        vips::VImage image = vips::VImage::new_from_file(tmp.c_str());
+        image.write_to_file(filename.c_str(),
+                            vips::VImage::option()
+                                    ->set("squash", true)
+                                    ->set("compression", VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE)
+        );
     }
 
 private:

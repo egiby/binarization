@@ -5,7 +5,7 @@
 
 void BradleyAlgorithm::Run(Image& image, int invWindowSize, double threshold) {
     computeIntegralImage(image);
-    int windowSize = image.Width() / invWindowSize;
+    int windowSize = std::min(image.Width(), image.Height()) / invWindowSize;
 
     for (int h = 0; h < image.Height(); ++h) {
         for (int w = 0; w < image.Width(); ++w) {
