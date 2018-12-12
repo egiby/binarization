@@ -18,8 +18,8 @@ struct Params {
     std::string InputFile;
     std::string OutputFile;
 
-    int InvWindowSize = 16; // 150
-    double Threshold = 0.15; // 0.12
+    int InvWindowSize = 128;
+    double Threshold = 0.12;
 
     bool Verbose = false;
     bool HasHelp = false;
@@ -28,12 +28,15 @@ struct Params {
 
 void PrintHelp() {
     std::cout << "Usage: \n"
-                 "binarization -i=<input file> [-o[=<output file>]] "
-                 "[-v] [-h] or \n"
-                 "binarization <input file>" << std::endl;
+                 "binarization -i=<input file> [-o[=<output file>]]\n"
+                 "\t[-d=<relative inverted window size>] [-t=<threshold>]\n"
+                 "\t[-v] [-h] [-c] or \n"
+                 "\tbinarization <input file>" << std::endl;
 
     std::cout << "\nDefaults:\n"
-                 "-o=\"result.tiff\"\n"
+                 "\t-o=\"result.tiff\"\n"
+                 "\t-d=128\n"
+                 "\t-t=0.12\n"
                  "" << std::endl;
 
     std::exit(0);
